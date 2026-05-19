@@ -112,7 +112,7 @@ export default function CartView({ cartItem, onRemoveItem, onCheckout, timeLeft 
             <Trash2 className="h-4 w-4" />
           </Button>
           <Button className="flex-1 bg-slate-900 hover:bg-slate-800 text-white font-semibold" onClick={onCheckout}>
-            Passer au paiement sécurisé (US-04)
+            Passer au paiement sécurisé
           </Button>
         </CardFooter>
       </Card>

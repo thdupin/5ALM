@@ -3,6 +3,7 @@ import AuthForm from "./components/auth-form"
 import MatchCatalog from "./components/match-catalog"
 import CartView from "./components/cart-view"
 import CheckoutView from "./components/checkout-view"
+import TicketView from "./components/ticket-view"
 import { Toaster } from "@/components/ui/sonner"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { LogOut, User as UserIcon, LayoutDashboard, ShoppingCart, Ticket, History } from "lucide-react"
@@ -92,8 +93,9 @@ export default function App() {
           <div className="flex items-center gap-4">
             {user.role === "admin" && (
               <Button 
-                variant={currentView === "admin" ? "default" : "outline"} 
+                variant={currentView === "admin" ? "default" : "secondary"} 
                 size="sm"
+                className="rounded-md font-medium border border-slate-700 bg-white text-slate-900 hover:bg-slate-100"
                 onClick={() => setCurrentView(currentView === "admin" ? "catalog" : "admin")}
               >
                 <LayoutDashboard className="h-4 w-4 mr-2" /> 
@@ -163,8 +165,7 @@ export default function App() {
             cartItem={cart!} 
             onCancel={() => setCurrentView("cart")}
             onPaymentSuccess={(details) => {
-              // Sauvegarde de la commande dans l'historique avant de vider le panier
-              const newOrder: OrderHistoryItem = {
+              const newOrder = {
                 id: "ORD-" + Math.random().toString(36).substring(2, 9).toUpperCase(),
                 match: cart!.match,
                 seat: cart!.seat,
@@ -176,17 +177,21 @@ export default function App() {
               
               setOrders((prev) => [newOrder, ...prev]);
               setCart(null); 
-              setCurrentView("ticket"); // On envoie l'utilisateur vers l'US-05
-              
-              // Petit backup en session globale pour le composant ticket
+              setCurrentView("ticket"); // Bascule immédiate sur l'US-05 !
               (window as any).lastOrderDetails = newOrder;
             }}
           />
+        ) : currentView === "ticket" ? (
+          /* BRANCHEMENT US-05 : Rendu du Billet officiel */
+          <TicketView 
+            order={(window as any).lastOrderDetails || orders[0]} 
+            onGoBack={() => setCurrentView("catalog")}
+          />
         ) : (
-          /* CORRECTION FIX 2 : Vue de secours pour l'historique (US-05 / US-06) */
+          /* Ce bloc accueillera la dernière US-06 (Historique global) */
           <div className="p-8 text-center bg-white border rounded-xl shadow max-w-md mx-auto">
-            <h2 className="text-xl font-bold">📋 Vos Commandes & Billets (US-05 / US-06)</h2>
-            <p className="text-slate-500 mt-2">Le tunnel d'achat fonctionne ! Prêt à brancher l'affichage du billet.</p>
+            <h2 className="text-xl font-bold">📋 Votre Historique de Commandes (US-06)</h2>
+            <p className="text-slate-500 mt-2">Prêt à lister l'ensemble de vos billets achetés.</p>
           </div>
         )}
       </main>

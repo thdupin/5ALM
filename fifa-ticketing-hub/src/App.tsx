@@ -4,6 +4,7 @@ import MatchCatalog from "./components/match-catalog"
 import CartView from "./components/cart-view"
 import CheckoutView from "./components/checkout-view"
 import TicketView from "./components/ticket-view"
+import OrderHistory from "./components/order-history"
 import { Toaster } from "@/components/ui/sonner"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { LogOut, User as UserIcon, LayoutDashboard, ShoppingCart, Ticket, History } from "lucide-react"
@@ -182,16 +183,23 @@ export default function App() {
             }}
           />
         ) : currentView === "ticket" ? (
-          /* BRANCHEMENT US-05 : Rendu du Billet officiel */
           <TicketView 
             order={(window as any).lastOrderDetails || orders[0]} 
             onGoBack={() => setCurrentView("catalog")}
           />
+        ) : currentView === "history" ? (
+          /* BRANCHEMENT MAGIQUE US-06 : Rendu de l'historique complet */
+          <OrderHistory 
+            orders={orders} 
+            onViewTicket={(order) => {
+              (window as any).lastOrderDetails = order; // Charge le billet sélectionné
+              setCurrentView("ticket"); // Redirige vers l'US-05 pour voir le QR code
+            }}
+          />
         ) : (
-          /* Ce bloc accueillera la dernière US-06 (Historique global) */
           <div className="p-8 text-center bg-white border rounded-xl shadow max-w-md mx-auto">
-            <h2 className="text-xl font-bold">📋 Votre Historique de Commandes (US-06)</h2>
-            <p className="text-slate-500 mt-2">Prêt à lister l'ensemble de vos billets achetés.</p>
+            <h2 className="text-xl font-bold">🛠️ Espace Administration (US-07)</h2>
+            <p className="text-slate-500 mt-2">Ce panneau s'ouvrira lors de l'étape finale.</p>
           </div>
         )}
       </main>

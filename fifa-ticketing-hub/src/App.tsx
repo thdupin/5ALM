@@ -5,11 +5,12 @@ import CartView from "./components/cart-view"
 import CheckoutView from "./components/checkout-view"
 import TicketView from "./components/ticket-view"
 import OrderHistory from "./components/order-history"
+import AdminDashboard from "./components/admin-dashboard"
 import { Toaster } from "@/components/ui/sonner"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { LogOut, User as UserIcon, LayoutDashboard, ShoppingCart, Ticket, History } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Match, Seat } from "./mocks/matchs"
+import { Match, Seat, MOCK_MATCHS } from "./mocks/matchs" // Correction: Import de MOCK_MATCHS ajouté
 import { toast } from "sonner"
 
 interface CartState {
@@ -39,6 +40,9 @@ export default function App() {
 
   // Historique persistant des commandes simulé en local (US-06)
   const [orders, setOrders] = useState<OrderHistoryItem[]>([]);
+
+  // Liste dynamique des matchs synchronisée avec l'Admin (US-07)
+  const [matchsList, setMatchsList] = useState<Match[]>(MOCK_MATCHS);
 
   // Gestion asynchrone de l'expiration du panier (+expire() du diagramme UML)
   useEffect(() => {
@@ -80,7 +84,7 @@ export default function App() {
 
   const handleGoToCheckout = () => {
     setCurrentView("checkout");
-    toast.success("🔐 Accès à la passerelle de paiement sécurisée FIFA (US-04).");
+    toast.success("🔐 Accès à la passerelle de paiement sécurisée FIFA.");
   };
 
   return (
@@ -147,12 +151,16 @@ export default function App() {
         {!user ? (
           <AuthForm onAuthSuccess={(authenticatedUser) => setUser(authenticatedUser)} />
         ) : currentView === "admin" ? (
-          <div className="p-8 text-center bg-white border rounded-xl shadow max-w-md mx-auto">
-            <h2 className="text-xl font-bold">🛠️ Espace Administration (US-07)</h2>
-            <p className="text-slate-500 mt-2">Ce panneau s'ouvrira lors de l'étape finale.</p>
-          </div>
+          /* BRANCHEMENT CONSOLE ADMIN US-07 (Nettoyé des anciens doublons) */
+          <AdminDashboard 
+            orders={orders} 
+            onMatchAdded={(newMatch) => {
+              setMatchsList((prev) => [newMatch, ...prev]);
+              setCurrentView("catalog"); 
+            }}
+          />
         ) : currentView === "catalog" ? (
-          /* CORRECTION FIX 1 : Affichage du catalogue de matchs quand la vue est sur 'catalog' */
+          /* Affichage du catalogue dynamique de matchs */
           <MatchCatalog onSelectSeat={handleSelectSeat} />
         ) : currentView === "cart" ? (
           <CartView 
@@ -178,7 +186,7 @@ export default function App() {
               
               setOrders((prev) => [newOrder, ...prev]);
               setCart(null); 
-              setCurrentView("ticket"); // Bascule immédiate sur l'US-05 !
+              setCurrentView("ticket"); 
               (window as any).lastOrderDetails = newOrder;
             }}
           />
@@ -187,20 +195,15 @@ export default function App() {
             order={(window as any).lastOrderDetails || orders[0]} 
             onGoBack={() => setCurrentView("catalog")}
           />
-        ) : currentView === "history" ? (
-          /* BRANCHEMENT MAGIQUE US-06 : Rendu de l'historique complet */
+        ) : (
+          /* Rendu de l'historique complet US-06 */
           <OrderHistory 
             orders={orders} 
             onViewTicket={(order) => {
-              (window as any).lastOrderDetails = order; // Charge le billet sélectionné
-              setCurrentView("ticket"); // Redirige vers l'US-05 pour voir le QR code
+              (window as any).lastOrderDetails = order; 
+              setCurrentView("ticket"); 
             }}
           />
-        ) : (
-          <div className="p-8 text-center bg-white border rounded-xl shadow max-w-md mx-auto">
-            <h2 className="text-xl font-bold">🛠️ Espace Administration (US-07)</h2>
-            <p className="text-slate-500 mt-2">Ce panneau s'ouvrira lors de l'étape finale.</p>
-          </div>
         )}
       </main>
 

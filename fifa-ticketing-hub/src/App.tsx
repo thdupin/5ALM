@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react"
 import AuthForm from "./components/auth-form"
 import MatchCatalog from "./components/match-catalog"
 import CartView from "./components/cart-view"
+import CheckoutView from "./components/checkout-view"
 import { Toaster } from "@/components/ui/sonner"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { LogOut, User as UserIcon, LayoutDashboard, ShoppingCart, Ticket, History } from "lucide-react"
@@ -15,14 +16,27 @@ interface CartState {
   quantity: number;
 }
 
+// Structure type de la commande finale (alignée sur l'entité Order / Ticket du diagramme UML)
+interface OrderHistoryItem {
+  id: string;
+  match: Match;
+  seat: Seat;
+  transactionId: string;
+  method: string;
+  amount: number;
+  date: string;
+}
+
 export default function App() {
   const [user, setUser] = useState<{ email: string; role: "supporter" | "admin" } | null>(null);
-  // Extension des vues pour accueillir le tunnel complet d'achat
   const [currentView, setCurrentView] = useState<"catalog" | "cart" | "checkout" | "ticket" | "history" | "admin">("catalog");
   
   // États du panier (US-03)
   const [cart, setCart] = useState<CartState | null>(null);
   const [timeLeft, setTimeLeft] = useState<number>(600); // 10 minutes en secondes
+
+  // Historique persistant des commandes simulé en local (US-06)
+  const [orders, setOrders] = useState<OrderHistoryItem[]>([]);
 
   // Gestion asynchrone de l'expiration du panier (+expire() du diagramme UML)
   useEffect(() => {
@@ -97,10 +111,14 @@ export default function App() {
         )}
       </header>
 
-      {/* Navigation par Onglets (si connecté et hors dashboard admin) */}
+      {/* Navigation par Onglets */}
       {user && currentView !== "admin" && (
         <div className="bg-white border-b border-slate-200 py-2 flex justify-center">
-          <Tabs value={currentView === "checkout" || currentView === "ticket" ? "cart" : currentView} onValueChange={(v) => setCurrentView(v as any)} className="w-full max-w-lg px-4">
+          <Tabs 
+            value={currentView === "checkout" || currentView === "ticket" ? "cart" : currentView} 
+            onValueChange={(v) => setCurrentView(v as any)} 
+            className="w-full max-w-lg px-4"
+          >
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="catalog" className="flex items-center gap-2">
                 <Ticket className="h-4 w-4" /> Matchs
@@ -131,7 +149,7 @@ export default function App() {
             <p className="text-slate-500 mt-2">Ce panneau s'ouvrira lors de l'étape finale.</p>
           </div>
         ) : currentView === "catalog" ? (
-          /* Modification: Changement du callback vers handleSelectSeat */
+          /* CORRECTION FIX 1 : Affichage du catalogue de matchs quand la vue est sur 'catalog' */
           <MatchCatalog onSelectSeat={handleSelectSeat} />
         ) : currentView === "cart" ? (
           <CartView 
@@ -141,14 +159,34 @@ export default function App() {
             timeLeft={timeLeft}
           />
         ) : currentView === "checkout" ? (
-          <div className="p-8 text-center bg-white border rounded-xl shadow max-w-md mx-auto">
-            <h2 className="text-xl font-bold">💳 Simulation de Paiement (US-04)</h2>
-            <p className="text-slate-500 mt-2">Prêt à coder la vue bancaire sécurisée.</p>
-          </div>
+          <CheckoutView 
+            cartItem={cart!} 
+            onCancel={() => setCurrentView("cart")}
+            onPaymentSuccess={(details) => {
+              // Sauvegarde de la commande dans l'historique avant de vider le panier
+              const newOrder: OrderHistoryItem = {
+                id: "ORD-" + Math.random().toString(36).substring(2, 9).toUpperCase(),
+                match: cart!.match,
+                seat: cart!.seat,
+                transactionId: details.transactionId,
+                method: details.method,
+                amount: details.amount,
+                date: new Date().toLocaleDateString("fr-FR")
+              };
+              
+              setOrders((prev) => [newOrder, ...prev]);
+              setCart(null); 
+              setCurrentView("ticket"); // On envoie l'utilisateur vers l'US-05
+              
+              // Petit backup en session globale pour le composant ticket
+              (window as any).lastOrderDetails = newOrder;
+            }}
+          />
         ) : (
+          /* CORRECTION FIX 2 : Vue de secours pour l'historique (US-05 / US-06) */
           <div className="p-8 text-center bg-white border rounded-xl shadow max-w-md mx-auto">
             <h2 className="text-xl font-bold">📋 Vos Commandes & Billets (US-05 / US-06)</h2>
-            <p className="text-slate-500 mt-2">Espace d'historique et téléchargement de QR Codes.</p>
+            <p className="text-slate-500 mt-2">Le tunnel d'achat fonctionne ! Prêt à brancher l'affichage du billet.</p>
           </div>
         )}
       </main>

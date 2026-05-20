@@ -28,9 +28,9 @@ export default function CartView({ cartItem, onRemoveItem, onCheckout, timeLeft 
 
   if (!cartItem) {
     return (
-      <Card className="border-dashed border-slate-300 max-w-md mx-auto text-center p-8 rounded-3xl bg-white shadow-md">
+      <Card className="border-dashed border-slate-300 max-w-md mx-auto text-center p-8 rounded-3xl bg-white shadow-md relative overflow-hidden">
         <CardContent className="space-y-4 pt-6">
-          <div className="p-4 bg-slate-50 text-slate-400 rounded-full w-16 h-16 flex items-center justify-center mx-auto border border-slate-100">
+          <div className="p-4 bg-blue-50 text-primary rounded-full w-16 h-16 flex items-center justify-center mx-auto border border-blue-100/50 shadow-sm">
             <ShoppingBag className="h-8 w-8" />
           </div>
           <CardTitle className="text-xl font-black text-slate-900">Votre panier est vide</CardTitle>
@@ -50,26 +50,26 @@ export default function CartView({ cartItem, onRemoveItem, onCheckout, timeLeft 
       {/* Conteneur unique à bords arrondis parfaits */}
       <Card className="border-slate-200/80 shadow-2xl rounded-3xl overflow-hidden bg-white relative pt-0">
         
-        {/* Barre de progression discrète tout en haut du header */}
-        <div className="absolute top-0 left-0 w-full bg-slate-800 h-1 z-20">
+        {/* Barre de progression temporelle synchronisée */}
+        <div className="absolute top-0 left-0 w-full bg-slate-800/20 h-1 z-20">
           <div
             className={`h-full transition-all duration-1000 ${timeLeft < 60 ? "bg-red-500 animate-pulse" : "bg-amber-500"}`}
             style={{ width: `${(timeLeft / 600) * 100}%` }}
           />
         </div>
 
-        {/* En-tête Premium Bleu Nuit */}
-        <CardHeader className="bg-gradient-to-b from-slate-900 to-slate-950 text-white p-6 relative border-b border-slate-800 pt-7">
+        {/* En-tête Premium Bleu Royal FIFA */}
+        <CardHeader className="bg-gradient-to-b from-primary to-[#111827] text-white p-6 relative border-b border-blue-950 pt-7">
           <div className="absolute top-0 right-0 w-24 h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-500/5 via-transparent to-transparent pointer-events-none" />
           
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <CardTitle className="text-lg font-black tracking-tight flex items-center gap-2 text-white">
-              <ShoppingBag className="h-5 w-5 text-amber-500" /> RÉCAPITULATIF DE RÉSERVATION
+            <CardTitle className="text-base font-black tracking-tight flex items-center gap-2 text-white">
+              <ShoppingBag className="h-4 w-4 text-amber-400" /> RÉCAPITULATIF DE RÉSERVATION
             </CardTitle>
             
-            {/* Le Décompte déplacé et ultra-modernisé ici */}
+            {/* Le Décompte de verrouillage du siège */}
             <div className="flex items-center gap-2 self-start sm:self-center">
-              <Badge variant="outline" className="bg-white/5 text-slate-300 border-white/10 text-[10px] font-bold h-6">
+              <Badge variant="outline" className="bg-white/5 text-blue-200 border-white/10 text-[10px] font-bold h-6">
                 1 SIÈGE
               </Badge>
               <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-black border tracking-wider transition-colors shadow-sm ${
@@ -83,7 +83,7 @@ export default function CartView({ cartItem, onRemoveItem, onCheckout, timeLeft 
             </div>
           </div>
           
-          <CardDescription className="text-slate-400 text-xs mt-1.5">
+          <CardDescription className="text-blue-200/60 text-xs mt-1.5">
             Vérifiez vos coordonnées de placement avant de passer à l'étape d'encaissement sécurisé.
           </CardDescription>
         </CardHeader>
@@ -94,21 +94,21 @@ export default function CartView({ cartItem, onRemoveItem, onCheckout, timeLeft 
               <span className="text-[9px] font-black uppercase text-amber-600 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded font-mono">
                 MATCH OFFICIEL
               </span>
-              <h4 className="font-black text-slate-900 text-lg tracking-tight pt-1">
+              <h4 className="font-black text-slate-900 text-base tracking-tight pt-1">
                 {cartItem.match.teamA} <span className="text-slate-400 font-light text-sm">vs</span> {cartItem.match.teamB}
               </h4>
               <p className="text-xs text-slate-500 font-medium">
                 {cartItem.match.stadium.name} — <strong className="text-slate-700">{cartItem.match.stadium.city}</strong>
               </p>
               
-              <div className="pt-3 flex flex-wrap items-center gap-3 border-t border-slate-200/60 mt-2">
-                <span className="text-xs font-bold text-slate-900 bg-amber-500/10 text-slate-900 border border-amber-500/20 px-3 py-1 rounded-lg">
+              <div className="pt-3 flex flex-wrap items-center gap-2 border-t border-slate-200/60 mt-2">
+                <span className="text-xs font-bold text-primary bg-blue-50 border border-blue-100 px-2.5 py-0.5 rounded-lg">
                   {cartItem.seat.section}
                 </span>
-                <span className="text-xs font-medium text-slate-600 font-mono bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-sm">
+                <span className="text-xs font-medium text-slate-600 font-mono bg-white border border-slate-200 px-2.5 py-0.5 rounded-lg shadow-sm">
                   {cartItem.seat.row}
                 </span>
-                <span className="text-xs font-medium text-slate-600 font-mono bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-sm">
+                <span className="text-xs font-medium text-slate-600 font-mono bg-white border border-slate-200 px-2.5 py-0.5 rounded-lg shadow-sm">
                   Siège N°{cartItem.seat.number}
                 </span>
               </div>
@@ -116,7 +116,7 @@ export default function CartView({ cartItem, onRemoveItem, onCheckout, timeLeft 
 
             <div className="sm:text-right self-end sm:self-start shrink-0">
               <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Tarif Catégorie</span>
-              <Badge variant="outline" className="text-[10px] font-bold text-slate-700 border-slate-300 bg-white shadow-sm mt-0.5 mb-1">
+              <Badge variant="outline" className="text-[10px] font-bold text-primary border-blue-100 bg-blue-50/50 shadow-sm mt-0.5 mb-1">
                 {cartItem.seat.categoryName}
               </Badge>
               <p className="font-mono font-black text-xl text-slate-900">{cartItem.seat.price} €</p>
@@ -135,7 +135,7 @@ export default function CartView({ cartItem, onRemoveItem, onCheckout, timeLeft 
 
           <div className="flex justify-between items-center text-base pt-1">
             <span className="font-bold text-slate-600">Net à payer :</span>
-            <span className="font-mono font-black text-2xl text-slate-900 bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+            <span className="font-mono font-black text-2xl text-primary">
               {totalPrice} €
             </span>
           </div>
@@ -150,10 +150,10 @@ export default function CartView({ cartItem, onRemoveItem, onCheckout, timeLeft 
             <Trash2 className="h-4 w-4" />
           </Button>
           <Button 
-            className="flex-1 bg-slate-950 hover:bg-slate-900 text-white font-black text-xs uppercase tracking-wider h-11 rounded-xl shadow-md shadow-slate-950/10 flex items-center justify-center gap-2" 
+            className="flex-1 bg-primary hover:bg-primary/90 text-white font-black text-xs uppercase tracking-wider h-11 rounded-xl shadow-md flex items-center justify-center gap-2" 
             onClick={onCheckout}
           >
-            <Lock className="h-3.5 w-3.5 text-amber-500" /> Procéder au paiement sécurisé
+            <Lock className="h-3.5 w-3.5 text-amber-400" /> Procéder au paiement sécurisé
           </Button>
         </CardFooter>
       </Card>

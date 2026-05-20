@@ -21,33 +21,41 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         
+        // ⚽ LE COMPROMIS COMPÉTITION : Un vrai bleu de caractère, plus lumineux
         primary: {
-          DEFAULT: "#0f172a",
-          foreground: "#ffffff",
+          DEFAULT: "#1e40af", // Bleu Royal intense (Fonds de cartes, boutons majeurs, Navbar)
+          foreground: "#ffffff", //
         },
         secondary: {
-          DEFAULT: "#f8fafc",
-          foreground: "#0f172a",
+          DEFAULT: "#eff6ff", // Bleu très clair et fondu pour le contraste des sous-sections
+          foreground: "#1e40af",
         },
         destructive: {
-          DEFAULT: "#dc2626",
-          foreground: "#ffffff",
+          DEFAULT: "#ef4444", // Rouge vif réglementaire
+          foreground: "#ffffff", //
         },
         muted: {
-          DEFAULT: "#f1f5f9",
-          foreground: "#64748b",
+          DEFAULT: "#f8fafc",
+          foreground: "#475569",
         },
         accent: {
-          DEFAULT: "#f59e0b",
-          foreground: "#0f172a",
+          DEFAULT: "#f59e0b", // Or / Ambre de la Coupe du Monde
+          foreground: "#1e40af",
         },
         popover: {
-          DEFAULT: "#ffffff",
-          foreground: "#0f172a",
+          DEFAULT: "#ffffff", //
+          foreground: "#1e40af",
         },
         card: {
-          DEFAULT: "#ffffff",
-          foreground: "#0f172a",
+          DEFAULT: "#ffffff", //
+          foreground: "#1e40af",
+        },
+
+        // 🟢 PALETTE DE MARQUE OXO INTEGRÉE
+        oxo: {
+          DEFAULT: "#B0D122", // Le vert emblématique oxo
+          dark: "#000000",    // Le noir pur oxo
+          light: "#ffffff",   // Le blanc pur oxo
         },
       },
       borderRadius: {

@@ -84,37 +84,46 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans relative overflow-x-hidden">
       
-      {/* 👑 NAVBAR MONOLITHIQUE FIXE DE LA PLATEFORME */}
-      <div className="fixed top-0 left-0 right-0 z-50 w-full bg-slate-950 shadow-md">
-        <header className="py-4 px-6 flex justify-between items-center">
+      {/* 👑 NAVBAR FIXE AUX COULEURS FIFA PREMIUM */}
+      <div className="fixed top-0 left-0 right-0 z-50 w-full bg-gradient-to-b from-primary to-[#111827] shadow-lg border-b border-blue-900/40">
+        {/* px-4 et max-w-full permettent de coller proprement aux bords de l'écran */}
+        <header className="py-2 px-4 flex justify-between items-center w-full max-w-full mx-auto">
           
-          {/* Titre / Lien Home */}
+          {/* 🏆 BLOC TITRE ET IMAGE CALÉ À GAUCHE */}
           <h1 
-            className="text-xl font-black tracking-wider text-amber-500 cursor-pointer flex items-center gap-2 hover:opacity-90 transition-opacity" 
+            className="text-lg font-black tracking-wider text-amber-500 cursor-pointer flex items-center gap-3 hover:opacity-90 transition-opacity drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] group shrink-0" 
             onClick={() => setCurrentView("catalog")}
           >
-            FIFA WORLD CUP 2026
+            <img 
+              src="/fifa-trophy.png" 
+              alt="FIFA Trophy" 
+              className="h-9 w-9 object-contain transition-transform group-hover:scale-110 duration-250 mb-2"
+            />
+            <span className="bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 bg-clip-text text-transparent hidden sm:inline-block">
+              FIFA WORLD CUP 2026
+            </span>
           </h1>
           
+          {/* 🎯 BLOC NAVIGATION ET PROFIL CALÉ À DROITE */}
           {user && (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 ml-auto">
               
               {/* INTERFACE DE CONSOLE ADMIN */}
               {user.role === "admin" && (
                 <Button 
                   variant={currentView === "admin" ? "default" : "secondary"} 
                   size="sm"
-                  className="rounded-xl font-medium border border-slate-700 bg-white text-slate-900 hover:bg-slate-100 text-xs h-8 mr-1"
+                  className="rounded-xl font-bold border border-blue-800 bg-white text-primary hover:bg-slate-100 text-xs h-8 transition-all active:scale-95"
                   onClick={() => setCurrentView(currentView === "admin" ? "catalog" : "admin")}
                 >
                   <LayoutDashboard className="h-3.5 w-3.5 mr-1.5" /> 
-                  {currentView === "admin" ? "Voir le site" : "Console Admin"}
+                  <span className="hidden md:inline">{currentView === "admin" ? "Voir le site" : "Console Admin"}</span>
                 </Button>
               )}
 
-              {/* 🎯 ACTIONS UTILISATEUR CENTRALISÉES AVEC TEXTES COMPLETS */}
+              {/* ACTIONS UTILISATEUR CENTRALISÉES */}
               {currentView !== "admin" && (
-                <div className="flex items-center bg-slate-900/60 p-1 rounded-xl border border-slate-800/80 gap-1">
+                <div className="flex items-center bg-slate-950/40 backdrop-blur-md p-1 rounded-xl border border-white/5 gap-1">
                   
                   {/* Bouton Matchs */}
                   <button 
@@ -122,7 +131,7 @@ export default function App() {
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                       currentView === "catalog" || currentView === "checkout" || currentView === "ticket"
                         ? "bg-amber-500 text-slate-950 shadow-sm" 
-                        : "text-slate-400 hover:text-white hover:bg-slate-800/30"
+                        : "text-blue-100 hover:text-white hover:bg-white/5"
                     }`}
                   >
                     <Trophy className="h-3.5 w-3.5" />
@@ -135,7 +144,7 @@ export default function App() {
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                       currentView === "history" 
                         ? "bg-amber-500 text-slate-950 shadow-sm" 
-                        : "text-slate-400 hover:text-white hover:bg-slate-800/30"
+                        : "text-blue-100 hover:text-white hover:bg-white/5"
                     }`}
                   >
                     <History className="h-3.5 w-3.5" />
@@ -145,7 +154,7 @@ export default function App() {
                   {/* Bouton Panier Coulissant */}
                   <button 
                     onClick={() => setIsCartOpen(true)}
-                    className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all group/btn"
+                    className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-blue-200 hover:text-white hover:bg-white/10 transition-all group/btn"
                   >
                     <div className="relative">
                       <ShoppingCart className="h-3.5 w-3.5" />
@@ -161,13 +170,13 @@ export default function App() {
               )}
 
               {/* COMPOSANT PROFIL D'IDENTITÉ */}
-              <div className="flex items-center gap-2 text-xs bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-slate-300">
+              <div className="flex items-center gap-2 text-xs bg-slate-950/50 border border-blue-900/30 px-3 py-1.5 rounded-xl text-blue-100">
                 <UserIcon className="h-3.5 w-3.5 text-amber-500" />
-                <span className="max-w-[100px] truncate hidden md:inline">{user.email}</span>
+                <span className="max-w-[120px] truncate hidden md:inline">{user.email}</span>
               </div>
 
               {/* DÉCONNEXION */}
-              <Button variant="destructive" size="sm" className="h-8 text-xs px-2.5 rounded-xl" onClick={() => { setUser(null); setCart(null); setIsCartOpen(false); setCurrentView("catalog"); }}>
+              <Button variant="destructive" size="sm" className="h-8 text-xs px-2.5 rounded-xl transition-all active:scale-95" onClick={() => { setUser(null); setCart(null); setIsCartOpen(false); setCurrentView("catalog"); }}>
                 <LogOut className="h-3.5 w-3.5" />
               </Button>
             </div>
@@ -199,7 +208,7 @@ export default function App() {
       )}
 
       {/* CONTENU PRINCIPAL ADAPTÉ AU REMBOURRAGE DE LA NAVBAR */}
-      <main className="container mx-auto pb-8 px-4 pt-[90px] relative z-10">
+      <main className="container mx-auto pb-8 px-4 pt-[85px] relative z-10">
         {!user ? (
           <AuthForm onAuthSuccess={(authenticatedUser) => setUser(authenticatedUser)} />
         ) : currentView === "admin" ? (

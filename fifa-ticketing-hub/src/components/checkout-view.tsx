@@ -40,7 +40,7 @@ export default function CheckoutView({ cartItem, onPaymentSuccess, onCancel }: C
     setIsProcessing(true);
     toast.loading("Communication avec la passerelle chiffrée FIFA...", { id: "payment-loading" });
 
-    // Simulation de la méthode +process() de l'entité Payment du diagramme UML
+    // Simulation de la méthode +process() de l'entité Payment
     setTimeout(() => {
       setIsProcessing(false);
       toast.dismiss("payment-loading");
@@ -63,58 +63,58 @@ export default function CheckoutView({ cartItem, onPaymentSuccess, onCancel }: C
       <button 
         onClick={onCancel} 
         disabled={isProcessing}
-        className="flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors disabled:opacity-50"
+        className="flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-primary transition-colors disabled:opacity-50"
       >
         <ArrowLeft className="h-3.5 w-3.5" /> Retour au récapitulatif du panier
       </button>
 
       <Card className="border-slate-200 shadow-2xl rounded-3xl overflow-hidden bg-white pt-0">
         
-        {/* Header Style Bannière Sécurisée FIFA (Bleu Nuit + Or) */}
-        <CardHeader className="bg-gradient-to-b from-slate-900 to-slate-950 text-white p-6 relative border-b border-slate-800">
+        {/* Header Style Bannière Sécurisée FIFA (Bleu Royal + Or) */}
+        <CardHeader className="bg-gradient-to-b from-primary to-[#111827] text-white p-6 relative border-b border-blue-950">
           <div className="absolute top-0 right-0 w-24 h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-500/5 via-transparent to-transparent pointer-events-none" />
           
           <div className="flex justify-between items-center">
-            <CardTitle className="text-lg font-black tracking-tight flex items-center gap-2 text-white">
-              <ShieldCheck className="h-5 w-5 text-amber-500" /> SECURE CHECKOUT
+            <CardTitle className="text-base font-black tracking-tight flex items-center gap-2 text-white">
+              <ShieldCheck className="h-5 w-5 text-amber-400" /> SECURE CHECKOUT
             </CardTitle>
-            <Badge className="bg-slate-800 text-amber-500 border border-amber-500/20 font-mono text-[10px] px-2.5 py-0.5 rounded-md">
+            <Badge className="bg-slate-950/60 text-amber-400 border border-amber-500/20 font-mono text-[10px] px-2.5 py-0.5 rounded-md">
               PCI-DSS v4.0
             </Badge>
           </div>
-          <CardDescription className="text-slate-400 text-xs mt-1">
+          <CardDescription className="text-blue-200/60 text-xs mt-1.5">
             Transaction chiffrée de bout en bout pour le siège <strong className="text-white font-mono">{cartItem.seat.section}</strong>.
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="p-6 space-y-6">
+        <CardContent className="p-6 space-y-5">
           
-          {/* Section d'affichage du prix FIFA */}
-          <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex justify-between items-center">
+          {/* Section d'affichage du prix aux couleurs du thème */}
+          <div className="bg-blue-50/40 border border-blue-100/30 rounded-2xl p-4 flex justify-between items-center">
             <div>
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Total de la commande</span>
               <span className="text-xs font-bold text-slate-700">{cartItem.match.teamA} vs {cartItem.match.teamB}</span>
             </div>
             <div className="text-right">
-              <span className="text-xl font-black font-mono text-slate-900">{totalPrice} €</span>
+              <span className="text-xl font-black font-mono text-primary">{totalPrice} €</span>
             </div>
           </div>
 
-          {/* Choix de la Méthode de Paiement (Cartes interactives modernes) */}
+          {/* Choix de la Méthode de Paiement */}
           <div className="space-y-2.5">
-            <Label className="text-xs font-black uppercase tracking-wider text-slate-400">Sélectionner une méthode</Label>
+            <Label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block ml-0.5">Sélectionner une méthode</Label>
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 disabled={isProcessing}
                 onClick={() => setPaymentMethod("Stripe")}
-                className={`p-3 rounded-xl border text-center font-bold text-sm transition-all flex flex-col items-center justify-center gap-1 active:scale-[0.98] ${
+                className={`p-3 rounded-xl border text-center font-bold text-sm transition-all flex flex-col items-center justify-center gap-1.5 active:scale-[0.98] ${
                   paymentMethod === "Stripe"
-                    ? "border-slate-900 bg-slate-950 text-white shadow-md shadow-slate-950/10"
+                    ? "border-primary bg-primary text-white shadow-md shadow-blue-900/20"
                     : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
                 }`}
               >
-                <CreditCard className={`h-4 w-4 ${paymentMethod === "Stripe" ? "text-amber-500" : "text-slate-400"}`} />
+                <CreditCard className={`h-4 w-4 ${paymentMethod === "Stripe" ? "text-amber-400" : "text-slate-400"}`} />
                 <span className="text-xs font-bold">Carte Bancaire</span>
               </button>
               
@@ -122,7 +122,7 @@ export default function CheckoutView({ cartItem, onPaymentSuccess, onCancel }: C
                 type="button"
                 disabled={isProcessing}
                 onClick={() => setPaymentMethod("PayPal")}
-                className={`p-3 rounded-xl border text-center font-bold text-sm transition-all flex flex-col items-center justify-center gap-1 active:scale-[0.98] ${
+                className={`p-3 rounded-xl border text-center font-bold text-sm transition-all flex flex-col items-center justify-center gap-1.5 active:scale-[0.98] ${
                   paymentMethod === "PayPal"
                     ? "border-amber-500 bg-amber-500 text-slate-950 shadow-md shadow-amber-500/10"
                     : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
@@ -148,7 +148,7 @@ export default function CheckoutView({ cartItem, onPaymentSuccess, onCancel }: C
                       id="card-num"
                       type="text"
                       placeholder="4242 4242 4242 4242"
-                      className="pl-10 font-mono text-sm bg-slate-50/50 focus-visible:ring-slate-950 border-slate-200 rounded-xl"
+                      className="pl-10 font-mono text-sm bg-slate-50/50 focus-visible:ring-primary focus-visible:border-primary border-slate-200 rounded-xl"
                       maxLength={19}
                       value={cardNumber}
                       onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, "").replace(/(.{4})/g, "$1 ").trim())}
@@ -164,7 +164,7 @@ export default function CheckoutView({ cartItem, onPaymentSuccess, onCancel }: C
                       id="card-exp"
                       type="text"
                       placeholder="MM/AA"
-                      className="text-center font-mono text-sm bg-slate-50/50 focus-visible:ring-slate-950 border-slate-200 rounded-xl"
+                      className="text-center font-mono text-sm bg-slate-50/50 focus-visible:ring-primary focus-visible:border-primary border-slate-200 rounded-xl"
                       maxLength={5}
                       value={expiry}
                       onChange={(e) => setExpiry(e.target.value.replace(/\D/g, "").replace(/(.{2})/, "$1/").trim())}
@@ -177,7 +177,7 @@ export default function CheckoutView({ cartItem, onPaymentSuccess, onCancel }: C
                       id="card-cvc"
                       type="password"
                       placeholder="123"
-                      className="text-center font-mono text-sm bg-slate-50/50 focus-visible:ring-slate-950 border-slate-200 rounded-xl"
+                      className="text-center font-mono text-sm bg-slate-50/50 focus-visible:ring-primary focus-visible:border-primary border-slate-200 rounded-xl"
                       maxLength={3}
                       value={cvc}
                       onChange={(e) => setCvc(e.target.value.replace(/\D/g, ""))}
@@ -194,13 +194,13 @@ export default function CheckoutView({ cartItem, onPaymentSuccess, onCancel }: C
               </div>
             )}
 
-            {/* Bouton de confirmation principal (Or / Ambre si PayPal, Noir si Stripe) */}
+            {/* Bouton de confirmation adapté dynamiquement */}
             <Button 
               type="submit" 
-              className={`w-full font-black text-xs uppercase tracking-wider h-11 mt-4 rounded-xl shadow-md transition-all ${
+              className={`w-full font-bold text-xs uppercase tracking-wider h-11 mt-4 rounded-xl shadow-md transition-all ${
                 paymentMethod === "PayPal"
                   ? "bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-amber-500/10"
-                  : "bg-slate-950 hover:bg-slate-900 text-white shadow-slate-950/10"
+                  : "bg-primary hover:bg-primary/90 text-white shadow-blue-900/10"
               }`}
               disabled={isProcessing}
             >

@@ -37,7 +37,7 @@ export default function AuthForm({ onAuthSuccess }: AuthFormProps) {
     setTimeout(() => {
       setLoading(false)
       setStep("2fa")
-      toast.success("Étape 1 validée. Un code de vérification (2FA) vous a été simulé !")
+      toast.success("Un code de vérification (2FA) vous a été simulé !")
     }, 1200)
   }
 

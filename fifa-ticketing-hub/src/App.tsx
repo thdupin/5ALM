@@ -7,10 +7,9 @@ import TicketView from "./components/ticket-view"
 import OrderHistory from "./components/order-history"
 import AdminDashboard from "./components/admin-dashboard"
 import { Toaster } from "@/components/ui/sonner"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { LogOut, User as UserIcon, LayoutDashboard, ShoppingCart, Ticket, History } from "lucide-react"
+import { LogOut, User as UserIcon, LayoutDashboard, ShoppingCart, Trophy, History, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Match, Seat, MOCK_MATCHS } from "./mocks/matchs" // Correction: Import de MOCK_MATCHS ajouté
+import { Match, Seat, MOCK_MATCHS } from "./mocks/matchs"
 import { toast } from "sonner"
 
 interface CartState {
@@ -19,7 +18,6 @@ interface CartState {
   quantity: number;
 }
 
-// Structure type de la commande finale (alignée sur l'entité Order / Ticket du diagramme UML)
 interface OrderHistoryItem {
   id: string;
   match: Match;
@@ -32,19 +30,18 @@ interface OrderHistoryItem {
 
 export default function App() {
   const [user, setUser] = useState<{ email: string; role: "supporter" | "admin" } | null>(null);
-  const [currentView, setCurrentView] = useState<"catalog" | "cart" | "checkout" | "ticket" | "history" | "admin">("catalog");
+  const [currentView, setCurrentView] = useState<"catalog" | "checkout" | "ticket" | "history" | "admin">("catalog");
   
-  // États du panier (US-03)
+  // États du panier (US-03) et contrôle du volet latéral
   const [cart, setCart] = useState<CartState | null>(null);
-  const [timeLeft, setTimeLeft] = useState<number>(600); // 10 minutes en secondes
+  const [timeLeft, setTimeLeft] = useState<number>(600);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
-  // Historique persistant des commandes simulé en local (US-06)
+  // Historique et listes dynamiques (US-06 et US-07)
   const [orders, setOrders] = useState<OrderHistoryItem[]>([]);
-
-  // Liste dynamique des matchs synchronisée avec l'Admin (US-07)
   const [matchsList, setMatchsList] = useState<Match[]>(MOCK_MATCHS);
 
-  // Gestion asynchrone de l'expiration du panier (+expire() du diagramme UML)
+  // Gestion du cycle de vie et expiration du panier (+expire)
   useEffect(() => {
     if (!cart) return;
 
@@ -52,9 +49,10 @@ export default function App() {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          setCart(null); // Libère les sièges bloqués
+          setCart(null);
+          setIsCartOpen(false);
           setCurrentView("catalog");
-          toast.error("⏱️ Votre panier a expiré ! Les billets ont été remis en vente.");
+          toast.error("⏱️ Votre panier a expiré ! Le siège a été remis en vente.");
           return 600;
         }
         return prev - 1;
@@ -64,94 +62,147 @@ export default function App() {
     return () => clearInterval(timer);
   }, [cart]);
 
-  // Action d'ajout au panier indexé sur le Seat (US-03)
   const handleSelectSeat = (match: Match, seat: Seat) => {
-    setCart({
-      match,
-      seat,
-      quantity: 1
-    });
+    setCart({ match, seat, quantity: 1 });
     setTimeLeft(600);
-    setCurrentView("cart");
-    toast.success(`🎟️ Siège bloqué (${seat.section}) ! Vous avez 10 minutes pour payer.`);
+    setIsCartOpen(true); // Ouverture automatique du tiroir e-commerce
+    toast.success(`🎟️ Siège temporairement bloqué !`);
   };
 
   const handleRemoveFromCart = () => {
     setCart(null);
-    setCurrentView("catalog");
-    toast.info("Panier vidé. Les places ont été libérées.");
+    setIsCartOpen(false);
+    toast.info("Le panier a été vidé.");
   };
 
   const handleGoToCheckout = () => {
+    setIsCartOpen(false);
     setCurrentView("checkout");
-    toast.success("🔐 Accès à la passerelle de paiement sécurisée FIFA.");
+    toast.success("🔐 Accès à la passerelle de paiement.");
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
-      {/* Header global */}
-      <header className="bg-slate-950 text-white py-4 px-6 flex justify-between items-center shadow-md">
-        <h1 className="text-xl font-black tracking-wider text-amber-500 cursor-pointer" onClick={() => setCurrentView("catalog")}>
-          FIFA WORLD CUP 2026
-        </h1>
-        {user && (
-          <div className="flex items-center gap-4">
-            {user.role === "admin" && (
-              <Button 
-                variant={currentView === "admin" ? "default" : "secondary"} 
-                size="sm"
-                className="rounded-md font-medium border border-slate-700 bg-white text-slate-900 hover:bg-slate-100"
-                onClick={() => setCurrentView(currentView === "admin" ? "catalog" : "admin")}
-              >
-                <LayoutDashboard className="h-4 w-4 mr-2" /> 
-                {currentView === "admin" ? "Voir le site" : "Espace Admin"}
-              </Button>
-            )}
-            <div className="flex items-center gap-2 text-sm bg-slate-800 px-3 py-1.5 rounded-full">
-              <UserIcon className="h-4 w-4 text-amber-400" />
-              <span>{user.email}</span>
-            </div>
-            <Button variant="destructive" size="sm" onClick={() => { setUser(null); setCart(null); setCurrentView("catalog"); }}>
-              <LogOut className="h-4 w-4 mr-2" /> Déconnexion
-            </Button>
-          </div>
-        )}
-      </header>
-
-      {/* Navigation par Onglets */}
-      {user && currentView !== "admin" && (
-        <div className="bg-white border-b border-slate-200 py-2 flex justify-center">
-          <Tabs 
-            value={currentView === "checkout" || currentView === "ticket" ? "cart" : currentView} 
-            onValueChange={(v) => setCurrentView(v as any)} 
-            className="w-full max-w-lg px-4"
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans relative overflow-x-hidden">
+      
+      {/* 👑 NAVBAR MONOLITHIQUE FIXE DE LA PLATEFORME */}
+      <div className="fixed top-0 left-0 right-0 z-50 w-full bg-slate-950 shadow-md">
+        <header className="py-4 px-6 flex justify-between items-center">
+          
+          {/* Titre / Lien Home */}
+          <h1 
+            className="text-xl font-black tracking-wider text-amber-500 cursor-pointer flex items-center gap-2 hover:opacity-90 transition-opacity" 
+            onClick={() => setCurrentView("catalog")}
           >
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="catalog" className="flex items-center gap-2">
-                <Ticket className="h-4 w-4" /> Matchs
-              </TabsTrigger>
-              <TabsTrigger value="cart" className="flex items-center gap-2 relative">
-                <ShoppingCart className="h-4 w-4" /> Panier
-                {cart && (
-                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold text-white animate-bounce">
-                    1
-                  </span>
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="history" className="flex items-center gap-2">
-                <History className="h-4 w-4" /> Mes Billets
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+            FIFA WORLD CUP 2026
+          </h1>
+          
+          {user && (
+            <div className="flex items-center gap-3">
+              
+              {/* INTERFACE DE CONSOLE ADMIN */}
+              {user.role === "admin" && (
+                <Button 
+                  variant={currentView === "admin" ? "default" : "secondary"} 
+                  size="sm"
+                  className="rounded-xl font-medium border border-slate-700 bg-white text-slate-900 hover:bg-slate-100 text-xs h-8 mr-1"
+                  onClick={() => setCurrentView(currentView === "admin" ? "catalog" : "admin")}
+                >
+                  <LayoutDashboard className="h-3.5 w-3.5 mr-1.5" /> 
+                  {currentView === "admin" ? "Voir le site" : "Console Admin"}
+                </Button>
+              )}
+
+              {/* 🎯 ACTIONS UTILISATEUR CENTRALISÉES AVEC TEXTES COMPLETS */}
+              {currentView !== "admin" && (
+                <div className="flex items-center bg-slate-900/60 p-1 rounded-xl border border-slate-800/80 gap-1">
+                  
+                  {/* Bouton Matchs */}
+                  <button 
+                    onClick={() => setCurrentView("catalog")}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                      currentView === "catalog" || currentView === "checkout" || currentView === "ticket"
+                        ? "bg-amber-500 text-slate-950 shadow-sm" 
+                        : "text-slate-400 hover:text-white hover:bg-slate-800/30"
+                    }`}
+                  >
+                    <Trophy className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Matchs</span>
+                  </button>
+
+                  {/* Bouton Mes Billets */}
+                  <button 
+                    onClick={() => setCurrentView("history")}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                      currentView === "history" 
+                        ? "bg-amber-500 text-slate-950 shadow-sm" 
+                        : "text-slate-400 hover:text-white hover:bg-slate-800/30"
+                    }`}
+                  >
+                    <History className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Mes Billets</span>
+                  </button>
+
+                  {/* Bouton Panier Coulissant */}
+                  <button 
+                    onClick={() => setIsCartOpen(true)}
+                    className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all group/btn"
+                  >
+                    <div className="relative">
+                      <ShoppingCart className="h-3.5 w-3.5" />
+                      {cart && (
+                        <span className="absolute -top-1.5 -right-2 flex h-3 w-3 items-center justify-center rounded-full bg-amber-500 text-[8px] font-black text-white animate-bounce">
+                          1
+                        </span>
+                      )}
+                    </div>
+                    <span className="hidden sm:inline">Panier</span>
+                  </button>
+                </div>
+              )}
+
+              {/* COMPOSANT PROFIL D'IDENTITÉ */}
+              <div className="flex items-center gap-2 text-xs bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-slate-300">
+                <UserIcon className="h-3.5 w-3.5 text-amber-500" />
+                <span className="max-w-[100px] truncate hidden md:inline">{user.email}</span>
+              </div>
+
+              {/* DÉCONNEXION */}
+              <Button variant="destructive" size="sm" className="h-8 text-xs px-2.5 rounded-xl" onClick={() => { setUser(null); setCart(null); setIsCartOpen(false); setCurrentView("catalog"); }}>
+                <LogOut className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          )}
+        </header>
+      </div>
+
+      {/* DRAWER DU PANIER LATÉRAL DROIT */}
+      {isCartOpen && (
+        <div className="fixed inset-0 z-50 flex justify-end animate-in fade-in duration-200">
+          <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm" onClick={() => setIsCartOpen(false)} />
+          <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-300 z-10 border-l border-slate-200">
+            <button 
+              onClick={() => setIsCartOpen(false)}
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-900 transition-colors z-30"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <div className="p-1 flex-1 overflow-y-auto">
+              <CartView 
+                cartItem={cart} 
+                onRemoveItem={handleRemoveFromCart} 
+                onCheckout={handleGoToCheckout} 
+                timeLeft={timeLeft}
+              />
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Main Content */}
-      <main className="container mx-auto py-8 px-4">
+      {/* CONTENU PRINCIPAL ADAPTÉ AU REMBOURRAGE DE LA NAVBAR */}
+      <main className="container mx-auto pb-8 px-4 pt-[90px] relative z-10">
         {!user ? (
           <AuthForm onAuthSuccess={(authenticatedUser) => setUser(authenticatedUser)} />
         ) : currentView === "admin" ? (
-          /* BRANCHEMENT CONSOLE ADMIN US-07 (Nettoyé des anciens doublons) */
           <AdminDashboard 
             orders={orders} 
             onMatchAdded={(newMatch) => {
@@ -160,19 +211,11 @@ export default function App() {
             }}
           />
         ) : currentView === "catalog" ? (
-          /* Affichage du catalogue dynamique de matchs */
-          <MatchCatalog onSelectSeat={handleSelectSeat} />
-        ) : currentView === "cart" ? (
-          <CartView 
-            cartItem={cart} 
-            onRemoveItem={handleRemoveFromCart} 
-            onCheckout={handleGoToCheckout} 
-            timeLeft={timeLeft}
-          />
+          <MatchCatalog matchs={matchsList} onSelectSeat={handleSelectSeat} />
         ) : currentView === "checkout" ? (
           <CheckoutView 
             cartItem={cart!} 
-            onCancel={() => setCurrentView("cart")}
+            onCancel={() => { setCurrentView("catalog"); setIsCartOpen(true); }}
             onPaymentSuccess={(details) => {
               const newOrder = {
                 id: "ORD-" + Math.random().toString(36).substring(2, 9).toUpperCase(),
@@ -196,7 +239,6 @@ export default function App() {
             onGoBack={() => setCurrentView("catalog")}
           />
         ) : (
-          /* Rendu de l'historique complet US-06 */
           <OrderHistory 
             orders={orders} 
             onViewTicket={(order) => {

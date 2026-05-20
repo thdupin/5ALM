@@ -1,8 +1,9 @@
 import React from "react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Match, Seat } from "../mocks/matchs" // Correction: Import de Seat requis
-import { Timer, ShoppingBag, Trash2, ShieldAlert } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Match, Seat } from "../mocks/matchs"
+import { Timer, ShoppingBag, Trash2, ShieldAlert, Lock } from "lucide-react"
 
 interface CartItem {
   match: Match;
@@ -25,17 +26,16 @@ export default function CartView({ cartItem, onRemoveItem, onCheckout, timeLeft 
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  // Calcul du pourcentage pour la barre de progression (sur une base de 10 minutes / 600 secondes)
-  const progressPercentage = (timeLeft / 600) * 100;
-
   if (!cartItem) {
     return (
-      <Card className="border-dashed border-slate-300 max-w-md mx-auto text-center p-8">
-        <CardContent className="space-y-3 pt-4">
-          <ShoppingBag className="h-12 w-12 text-slate-300 mx-auto" />
-          <CardTitle className="text-lg text-slate-600">Votre panier est vide</CardTitle>
-          <CardDescription>
-            Retournez sur le catalogue pour sélectionner un match et réserver vos places.
+      <Card className="border-dashed border-slate-300 max-w-md mx-auto text-center p-8 rounded-3xl bg-white shadow-md">
+        <CardContent className="space-y-4 pt-6">
+          <div className="p-4 bg-slate-50 text-slate-400 rounded-full w-16 h-16 flex items-center justify-center mx-auto border border-slate-100">
+            <ShoppingBag className="h-8 w-8" />
+          </div>
+          <CardTitle className="text-xl font-black text-slate-900">Votre panier est vide</CardTitle>
+          <CardDescription className="text-slate-500 text-sm">
+            Retournez sur le catalogue pour sélectionner une rencontre et réserver votre siège certifié FIFA.
           </CardDescription>
         </CardContent>
       </Card>
@@ -45,74 +45,115 @@ export default function CartView({ cartItem, onRemoveItem, onCheckout, timeLeft 
   const totalPrice = cartItem.seat.price * cartItem.quantity;
 
   return (
-    <div className="max-w-xl mx-auto space-y-4">
-      {/* Alerte de Verrouillage Temporaire (Anti-Double Booking) */}
-      <Card className={`border ${timeLeft < 60 ? "bg-red-50 border-red-200 text-red-900" : "bg-amber-50 border-amber-200 text-amber-900"}`}>
-        <CardContent className="p-4 flex items-center gap-3">
-          <Timer className={`h-5 w-5 ${timeLeft < 60 ? "animate-pulse text-red-600" : "text-amber-600"}`} />
-          <div className="flex-1 text-sm font-medium">
-            Places réservées exclusivement pour vous pendant :{" "}
-            <span className="font-mono text-base font-bold">{formatTime(timeLeft)}</span>
-          </div>
-        </CardContent>
-        {/* Barre de progression visuelle du TTL */}
-        <div className="w-full bg-slate-200 h-1.5 rounded-b-full overflow-hidden">
+    <div className="max-w-xl mx-auto px-2 animate-in fade-in duration-500">
+      
+      {/* Conteneur unique à bords arrondis parfaits */}
+      <Card className="border-slate-200/80 shadow-2xl rounded-3xl overflow-hidden bg-white relative pt-0">
+        
+        {/* Barre de progression discrète tout en haut du header */}
+        <div className="absolute top-0 left-0 w-full bg-slate-800 h-1 z-20">
           <div
-            className={`h-full transition-all duration-1000 ${timeLeft < 60 ? "bg-red-600" : "bg-amber-500"}`}
-            style={{ width: `${progressPercentage}%` }}
+            className={`h-full transition-all duration-1000 ${timeLeft < 60 ? "bg-red-500 animate-pulse" : "bg-amber-500"}`}
+            style={{ width: `${(timeLeft / 600) * 100}%` }}
           />
         </div>
-      </Card>
 
-      {/* Détail du Panier */}
-      <Card className="border-slate-200 shadow-lg">
-        <CardHeader className="border-b border-slate-100">
-          <CardTitle className="text-lg font-bold flex items-center gap-2">
-            <ShoppingBag className="h-5 w-5 text-slate-500" /> Récapitulatif de votre réservation
-          </CardTitle>
-          <CardDescription>Vérifiez vos places avant de procéder au paiement sécurisé.</CardDescription>
+        {/* En-tête Premium Bleu Nuit */}
+        <CardHeader className="bg-gradient-to-b from-slate-900 to-slate-950 text-white p-6 relative border-b border-slate-800 pt-7">
+          <div className="absolute top-0 right-0 w-24 h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-500/5 via-transparent to-transparent pointer-events-none" />
+          
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <CardTitle className="text-lg font-black tracking-tight flex items-center gap-2 text-white">
+              <ShoppingBag className="h-5 w-5 text-amber-500" /> RÉCAPITULATIF DE RÉSERVATION
+            </CardTitle>
+            
+            {/* Le Décompte déplacé et ultra-modernisé ici */}
+            <div className="flex items-center gap-2 self-start sm:self-center">
+              <Badge variant="outline" className="bg-white/5 text-slate-300 border-white/10 text-[10px] font-bold h-6">
+                1 SIÈGE
+              </Badge>
+              <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-black border tracking-wider transition-colors shadow-sm ${
+                timeLeft < 60 
+                  ? "bg-red-500/10 text-red-400 border-red-500/30 animate-pulse" 
+                  : "bg-amber-500/10 text-amber-400 border-amber-500/20"
+              }`}>
+                <Timer className="h-3.5 w-3.5" />
+                <span>{formatTime(timeLeft)}</span>
+              </div>
+            </div>
+          </div>
+          
+          <CardDescription className="text-slate-400 text-xs mt-1.5">
+            Vérifiez vos coordonnées de placement avant de passer à l'étape d'encaissement sécurisé.
+          </CardDescription>
         </CardHeader>
 
-        <CardContent className="p-5 space-y-4">
-          <div className="flex justify-between items-start">
-            <div>
-              {/* Correction: Alignement sur les attributs UML teamA et teamB */}
-              <h4 className="font-bold text-slate-900 text-base">
-                {cartItem.match.teamA} vs {cartItem.match.teamB}
+        <CardContent className="p-6 space-y-5">
+          <div className="flex flex-col sm:flex-row justify-between items-start gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+            <div className="space-y-1.5">
+              <span className="text-[9px] font-black uppercase text-amber-600 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded font-mono">
+                MATCH OFFICIEL
+              </span>
+              <h4 className="font-black text-slate-900 text-lg tracking-tight pt-1">
+                {cartItem.match.teamA} <span className="text-slate-400 font-light text-sm">vs</span> {cartItem.match.teamB}
               </h4>
-              {/* Correction: Alignement sur la relation avec l'entité Stadium (stadium.name / city) */}
-              <p className="text-xs text-slate-500 mt-0.5">
-                {cartItem.match.stadium.name} — {cartItem.match.stadium.city}
+              <p className="text-xs text-slate-500 font-medium">
+                {cartItem.match.stadium.name} — <strong className="text-slate-700">{cartItem.match.stadium.city}</strong>
               </p>
-              <p className="text-sm font-medium text-blue-600 mt-2 bg-blue-50 px-2.5 py-0.5 rounded-full inline-block">
-                {cartItem.seat.section} ({cartItem.seat.categoryName})
-              </p>
+              
+              <div className="pt-3 flex flex-wrap items-center gap-3 border-t border-slate-200/60 mt-2">
+                <span className="text-xs font-bold text-slate-900 bg-amber-500/10 text-slate-900 border border-amber-500/20 px-3 py-1 rounded-lg">
+                  {cartItem.seat.section}
+                </span>
+                <span className="text-xs font-medium text-slate-600 font-mono bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-sm">
+                  {cartItem.seat.row}
+                </span>
+                <span className="text-xs font-medium text-slate-600 font-mono bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-sm">
+                  Siège N°{cartItem.seat.number}
+                </span>
+              </div>
             </div>
-            <div className="text-right">
-              <p className="font-mono font-bold text-slate-900">{cartItem.seat.price} €</p>
-              <p className="text-xs text-slate-400">Qté: {cartItem.quantity}</p>
+
+            <div className="sm:text-right self-end sm:self-start shrink-0">
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Tarif Catégorie</span>
+              <Badge variant="outline" className="text-[10px] font-bold text-slate-700 border-slate-300 bg-white shadow-sm mt-0.5 mb-1">
+                {cartItem.seat.categoryName}
+              </Badge>
+              <p className="font-mono font-black text-xl text-slate-900">{cartItem.seat.price} €</p>
+              <p className="text-[11px] text-slate-400">Quantité : {cartItem.quantity}</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-slate-500 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-            <ShieldAlert className="h-4 w-4 text-slate-400 shrink-0" />
-            <span>Conformément aux règles FIFA, les billets de cette catégorie sont nominatifs et limités.</span>
+          <div className="flex items-start gap-2.5 text-xs text-slate-500 bg-amber-500/5 p-3 rounded-xl border border-amber-500/10">
+            <ShieldAlert className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+            <span className="leading-relaxed">
+              Sécurisation AST : Ce titre d'accès est nominatif et rattaché à votre compte. Toute tentative de duplication ou revente en dehors de la plateforme officielle FIFA entraînera l'annulation immédiate du QR Code.
+            </span>
           </div>
 
           <hr className="border-slate-100" />
 
           <div className="flex justify-between items-center text-base pt-1">
-            <span className="font-semibold text-slate-600">Total à régler :</span>
-            <span className="font-mono font-black text-xl text-slate-900">{totalPrice} €</span>
+            <span className="font-bold text-slate-600">Net à payer :</span>
+            <span className="font-mono font-black text-2xl text-slate-900 bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+              {totalPrice} €
+            </span>
           </div>
         </CardContent>
 
-        <CardFooter className="p-4 bg-slate-50 border-t border-slate-100 rounded-b-xl flex gap-3">
-          <Button variant="outline" className="text-red-600 hover:text-red-700 hover:bg-red-50" onClick={onRemoveItem}>
+        <CardFooter className="p-4 bg-slate-50 border-t border-slate-100 rounded-b-3xl flex gap-3">
+          <Button 
+            variant="outline" 
+            className="text-red-600 hover:text-red-700 hover:bg-red-50 border-slate-200 h-11 rounded-xl px-3 transition-colors" 
+            onClick={onRemoveItem}
+          >
             <Trash2 className="h-4 w-4" />
           </Button>
-          <Button className="flex-1 bg-slate-900 hover:bg-slate-800 text-white font-semibold" onClick={onCheckout}>
-            Passer au paiement sécurisé
+          <Button 
+            className="flex-1 bg-slate-950 hover:bg-slate-900 text-white font-black text-xs uppercase tracking-wider h-11 rounded-xl shadow-md shadow-slate-950/10 flex items-center justify-center gap-2" 
+            onClick={onCheckout}
+          >
+            <Lock className="h-3.5 w-3.5 text-amber-500" /> Procéder au paiement sécurisé
           </Button>
         </CardFooter>
       </Card>

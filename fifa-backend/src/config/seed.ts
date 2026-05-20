@@ -10,7 +10,7 @@ const sampleMatch = {
   date: new Date("2026-07-19T21:00:00Z"),
   stadiumId: "STAD-METLIFE-01",
   totalSeats: 80000,
-  availableSeats: 2, // Petit nombre pour tester facilement
+  availableSeats: 2, // Cohérent avec les 2 sièges fournis ci-dessous
   stadium: {
     name: "MetLife Stadium",
     city: "East Rutherford",
@@ -23,14 +23,20 @@ const sampleMatch = {
       stadiumId: "STAD-METLIFE-01",
       section: "Tribune Nord - Catégorie 1",
       row: "Rangée A",
-      number: 12
+      number: 12,
+      categoryName: "Catégorie 1",
+      price: 180,
+      isAvailable: true
     },
     {
       id: "SEAT-02-B",
       stadiumId: "STAD-METLIFE-01",
       section: "Tribune Sud - Catégorie 2",
       row: "Rangée G",
-      number: 45
+      number: 45,
+      categoryName: "Catégorie 2",
+      price: 120,
+      isAvailable: true
     }
   ]
 };
@@ -49,8 +55,8 @@ async function runSeed() {
     console.log("🧹 Nettoyage de la table Matchs...");
     await Match.deleteMany({});
 
-    // 2. Mongoose va créer la collection "matches" et insérer le document
-    console.log("📥 Insertion des données de démonstration...");
+    // 2. Mongoose va créer la collection "matches" et insérer le document complet
+    console.log("📥 Insertion des données de démonstration conformes à l'UML...");
     const createdMatch = new Match(sampleMatch);
     await createdMatch.save();
 

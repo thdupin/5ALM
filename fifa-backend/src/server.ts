@@ -1,7 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
-import authRoutes from './routes/auth.routes'; // Importation des routes d'auth
+import authRoutes from './routes/auth.routes';
+import matchRoutes from './routes/match.routes';
 import { connectDB } from './config/db';
 
 const app = express();
@@ -15,6 +16,7 @@ app.use(express.json());
 
 // Déclaration de la brique d'authentification
 app.use('/api/auth', authRoutes);
+app.use('/api/matchs', matchRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: "OK", message: "Le back-end de la Billetterie FIFA est opérationnel." });

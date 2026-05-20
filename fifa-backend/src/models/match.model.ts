@@ -1,17 +1,34 @@
 import { Schema, model, Document } from "mongoose";
 
+enum Round {
+  GroupStage = "Phase de Groupes",
+  RoundOf16 = "Huitièmes de Finale",
+  QuarterFinals = "Quarts de Finale",
+  SemiFinals = "Demi-Finales",
+  Final = "Finale"
+}
+
+export enum SeatCategory {
+  Category1 = "Catégorie 1",
+  Category2 = "Catégorie 2",
+  Category3 = "Catégorie 3"
+}
+
 export interface ISeat {
   id: string; // UUID
   stadiumId: string; // UUID
   section: string;
   row: string;
   number: number;
+  categoryName: SeatCategory; // Enum
+  price: number;
+  isAvailable: boolean;
 }
 
 export interface IMatch extends Document {
   teamA: string;
   teamB: string;
-  round: string; // Enum
+  round: Round; // Enum
   group: string;
   date: Date;
   stadiumId: string; // UUID du stade de référence
@@ -31,7 +48,10 @@ const seatSchema = new Schema<ISeat>({
   stadiumId: { type: String, required: true },
   section: { type: String, required: true },
   row: { type: String, required: true },
-  number: { type: Number, required: true }
+  number: { type: Number, required: true },
+  categoryName: { type: String, required: true }, // Enum
+  price: { type: Number, required: true },
+  isAvailable: { type: Boolean, required: true }
 }, { _id: false });
 
 const matchSchema = new Schema<IMatch>({
